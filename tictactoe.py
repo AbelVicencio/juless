@@ -86,10 +86,11 @@ PAGINA_HTML = r'''<!doctype html>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tic Tac Toe - Gato</title>
   <style>
-    body { font-family: system-ui, sans-serif; display:flex; flex-direction:column; align-items:center; padding:20px; }
-    .board { display:grid; grid-template-columns: repeat(3, 100px); gap:8px; }
-    .cell { width:100px; height:100px; background:#f7f7f7; display:flex; align-items:center; justify-content:center; font-size:48px; cursor:pointer; border-radius:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);} 
-    .cell.disabled { cursor:default; opacity:0.7 }
+    body { font-family: system-ui, sans-serif; display:flex; flex-direction:column; align-items:center; padding:20px; background:#fafafa; }
+    .board { display:grid; grid-template-columns: repeat(3, 110px); gap:10px; background:transparent; padding:6px; }
+    .cell { width:110px; height:110px; background:#ffffff; display:flex; align-items:center; justify-content:center; font-size:48px; cursor:pointer; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border:2px solid #ddd; transition:transform .06s ease, background .08s ease; }
+    .cell:hover { transform: translateY(-2px); background:#f0f8ff }
+    .cell.disabled { cursor:default; opacity:0.8 }
     #info { margin:12px 0 }
     .cat { width:160px; margin-top:18px }
   </style>
