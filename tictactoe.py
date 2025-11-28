@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
-"""
-Tic Tac Toe webserver (single-file).
+"""Servidor web de Tic Tac Toe en un solo archivo.
 
-Ejecuta: python3 tictactoe.py
-Abre en el navegador: http://localhost:8000
+Este script ejecuta un servidor web local que permite jugar Tic Tac Toe
+contra una inteligencia artificial (IA) en un navegador web.
 
-El servidor sirve una página HTML/JS con un tablero y un SVG de gato.
-La IA usa minimax (no pierde).
+Para ejecutarlo:
+    python3 tictactoe.py
+
+Luego, abre en el navegador la dirección:
+    http://localhost:8000
+
+El servidor sirve una página HTML con JavaScript que renderiza el tablero
+y maneja la interacción del usuario. La IA utiliza el algoritmo minimax,
+lo que garantiza que nunca perderá.
 """
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -20,17 +26,22 @@ PUERTO = 8000
 
 
 def algoritmo_minimax(tablero, jugador, jugador_ia='O', jugador_humano='X'):
-  """
-  Algoritmo Minimax recursivo.
+  """Implementa el algoritmo minimax recursivamente para determinar la mejor jugada.
+
+  Esta función evalúa el estado del tablero y explora todas las posibles
+  jugadas futuras para encontrar la que maximice las posibilidades de ganar de la IA.
 
   Args:
-    tablero: lista de 9 elementos 'X','O' o None.
-    jugador: jugador actual ('X' o 'O').
-    jugador_ia: símbolo usado por la IA.
-    jugador_humano: símbolo usado por el humano.
+    tablero (list): Una lista de 9 elementos que representa el tablero.
+                    Cada elemento puede ser 'X', 'O', o None.
+    jugador (str): El jugador actual cuyo turno se está evaluando ('X' o 'O').
+    jugador_ia (str): El símbolo que representa a la IA.
+    jugador_humano (str): El símbolo que representa al jugador humano.
 
   Returns:
-    Tupla (puntaje, indice_de_jugada) donde puntaje: 1 IA gana, -1 humano gana, 0 empate.
+    tuple: Una tupla `(puntaje, indice_de_jugada)` donde:
+           - `puntaje` es 1 si la IA gana, -1 si el humano gana, o 0 para un empate.
+           - `indice_de_jugada` es el índice (0-8) de la mejor jugada posible.
   """
   ganador = verificar_ganador(tablero)
   if ganador == jugador_ia:
@@ -67,7 +78,14 @@ def algoritmo_minimax(tablero, jugador, jugador_ia='O', jugador_humano='X'):
 
 
 def verificar_ganador(tablero):
-  """Devuelve 'X' o 'O' si hay ganador, o None si no lo hay."""
+  """Verifica si hay un ganador en el tablero.
+
+  Args:
+    tablero (list): La lista de 9 elementos que representa el tablero.
+
+  Returns:
+    str or None: El símbolo del ganador ('X' o 'O') o `None` si no hay ganador.
+  """
   wins = [
         (0,1,2),(3,4,5),(6,7,8),
         (0,3,6),(1,4,7),(2,5,8),
@@ -190,17 +208,26 @@ PAGINA_HTML = r'''<!doctype html>
 
 
 class Manejador(BaseHTTPRequestHandler):
-    """Manejador HTTP que sirve la página y responde la jugada de la IA."""
+    """Manejador de peticiones HTTP.
+
+    Sirve la página principal del juego y responde a las solicitudes
+    para la jugada de la IA a través del endpoint `/jugada_ia`.
+    """
 
     def _establecer_encabezados(self, status=200, content_type='text/html'):
-        """Envía encabezados HTTP básicos y CORS."""
+        """Envía los encabezados HTTP básicos.
+
+        Args:
+            status (int): El código de estado HTTP a enviar.
+            content_type (str): El tipo de contenido de la respuesta.
+        """
         self.send_response(status)
         self.send_header('Content-type', content_type)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
     def do_OPTIONS(self):
-        # Responder a peticiones CORS preflight
+        """Responde a las solicitudes OPTIONS de pre-vuelo (preflight) para CORS."""
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
@@ -208,7 +235,7 @@ class Manejador(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        # Servir la página principal
+        """Sirve la página HTML principal del juego."""
         if self.path == '/' or self.path.startswith('/index'):
             self._establecer_encabezados(200, 'text/html; charset=utf-8')
             self.wfile.write(PAGINA_HTML.encode('utf-8'))
@@ -216,7 +243,7 @@ class Manejador(BaseHTTPRequestHandler):
             self.send_error(404, 'Not Found')
 
     def do_POST(self):
-        # Endpoint para calcular la jugada de la IA
+        """Maneja el endpoint `/jugada_ia` para la jugada de la IA."""
         if self.path == '/jugada_ia':
             longitud = int(self.headers.get('Content-Length', 0))
             raw = self.rfile.read(longitud)
@@ -240,7 +267,14 @@ class Manejador(BaseHTTPRequestHandler):
 
 
 def ejecutar(server_class=HTTPServer, handler_class=Manejador):
-  """Inicia el servidor HTTP y lo deja escuchando hasta Ctrl-C."""
+  """Inicia el servidor HTTP y lo mantiene en ejecución.
+
+  El servidor se mantendrá activo hasta que se interrumpa con Ctrl-C.
+
+  Args:
+      server_class: La clase del servidor a utilizar (por defecto, HTTPServer).
+      handler_class: La clase del manejador de peticiones (por defecto, Manejador).
+  """
   server_address = (ANFITRION, PUERTO)
   httpd = server_class(server_address, handler_class)
   print(f"Sirviendo en http://{ANFITRION}:{PUERTO}  — pulsa Ctrl-C para salir")
